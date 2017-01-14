@@ -1,0 +1,116 @@
+---
+title: "Regression Model Project: Manual Transmission vs Automatic Transmission"
+author: "Mrugank Akarte"
+date: "26 August 2016"
+output: pdf_document
+---
+
+##Executive Summary
+For the following analysis _mtcars_ dataset was used to answer the following questions.  
+_1.Is an automatic or manual transmission better for MPG?_  
+_2.Quantify the MPG difference between automatic and manual transmission_  
+Initially scatterplots were plot to determine directionality and correlation between variables.Then multiple regression model was used to determine the relationship between the MPG and Transmission variable.In order to get the best model _Backward Elimination using p-values_ method was used.This model has highest adjusted R square value of _0.8336_ compared to other models. According to this model keeping the weight and 1/4 mile time variable constant, manual transmission gives _2.93 MPG more_ than the automatic transmission on average.Also, keeping the transmission and 1/4 mile time variable constant, with increase in 1000lbs of weight the MPG _reduces by 3.91_ on average.
+
+##Setting up data
+
+Transforming the data to suitable format.Converting the numerical variables into categorical variables.
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(fpp)
+```
+
+```{r, echo=FALSE}
+data(mtcars)
+mtcars$cyl<-as.factor(mtcars$cyl)
+mtcars$am<-as.factor(mtcars$am)
+levels(mtcars$am)<-c("Automatic", "Manual")
+mtcars$vs<-as.factor(mtcars$vs)
+mtcars$gear<-as.factor(mtcars$gear)
+mtcars$carb<-as.factor(mtcars$carb)
+```
+
+Brief summary of data
+
+```{r, echo=FALSE}
+str(mtcars)
+```
+
+##Basic Analysis
+
+```{r,echo=FALSE}
+ggplot(data = mtcars, aes(am,mpg))+geom_boxplot(aes(fill=am))
+```
+
+Above box-plot shows significant difference in average MPG factor between automatic and manual transmission.
+
+##Scatterplots for directionality and correlation.
+
+```{r, echo=FALSE}
+pairs(mtcars[,c(1,3,4,6,7)], panel = panel.smooth)
+cor(mtcars[,c(1,3,4,6,7)],use = "pairwise.complete.obs")
+```
+
+From above pairs graph and correlation chart we can conclude that
+
+- Adding all the variables to regression model with result in incorrect observations since there are variables which are highly correlated to each other.Eg disp-wt, disp-hp, etc.
+- Due to presence of multicollinearity, in the final model only one such variable should be included.
+
+##Simple Regression
+```{r}
+sfit<-lm(mpg ~ am, data = mtcars)
+summary(sfit)
+```
+
+Adjusted R square for above regression model is only __0.3385__, meaning only 33.85% of variability in MPG is explained by this model.
+Thus it is necessary to use multiple regression to find out the best model.
+
+##Multiple Regression 
+
+In order to decide best model __Backward Elimination using p-values__ method was used.
+
+Initially adding all the variables in the model.
+```{r, results='hide', echo=FALSE}
+mfit1<-lm(mpg ~ ., data = mtcars)
+mfit8<-lm(mpg ~ am+wt+qsec, data = mtcars)
+```
+
+```{r, echo=FALSE}
+summary(mfit1)
+```
+
+In the above model there are many variables with p-value > 0.05 i.e they are statistically insignificant, thus removing the variables one by one. Eg: In first case __drat__ has highest p-value of 0.98, thus removing drat variable and fitting the model again. This process is continued till only the statistically significant variables are left in the model. This leads to the following model.
+
+```{r, echo=FALSE}
+summary(mfit8)
+```
+
+The adjusted R square for the model is __0.8336__ meaning 83.36% of variability in MPG is explained by this model.
+
+The estimates of the above model gives following observations.  
+
+- Keeping weight and 1/4 mile time constant, manual transmission gives __2.93 MPG more__ compared to automatic transmission, on average.
+- Keeping the transmission and 1/4 mile time constant, with increase in 1000lbs of weight the MPG is __reduced by 3.91__, on average.
+
+##Residual Diagnostics
+
+```{r, echo=FALSE}
+Acf(resid(mfit8))
+```
+
+- The Acf graphs shows that the residuals are not correlated to each other.
+- Multicollinearity was eliminated by selecting suitable variables.
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2))
+plot(mfit8)
+```
+
+- Above Residuals vs Fitted plots shows that residuals are randomly distributed, hence are not correlated with each other.
+- The residuals lie roughly on line in Q-Q plot indicating normal distribution.
+- The Scale-Location plot has random distribution of residuals indicating constant variance.
+- Residuals vs Leverage plot show no presence of outliers.
+
+##Conclusion
+
+Based on above analysis we can conclude that manual transmission is better than automatic transmission for MPG.
+
