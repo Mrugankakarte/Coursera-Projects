@@ -1,0 +1,49 @@
+Forecasting Application
+========================================================
+author:Mrugank Akarte 
+date:August 9,2016 
+autosize: true
+transition: fade
+
+Introduction
+=======================================================
+The basic idea behind this applicaton is to allow a user to compare the forecasts of data using different methods within few clicks of a button.
+
+Link for source code of [ui.R](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project) and [server.R](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project).  
+The link for application can be found [here](https://mrugankakarte.shinyapps.io/Project/)
+
+Working
+========================================================
+- Sample data file for demo is available [here](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project/demo-data-file).  
+- Once the data is loaded, user can see the preview of the data.  
+- Further the interactive time series plot is displayed in the _Plot_ section.  
+- The _Forecast_ section forecasts the data using available different methods. Brief description of each is available in their respective tabs.  
+- The _Error Table_ section shows different types of errors like mean error, root mean square error, mean percentage error, mean absolute percentage error, etc. The _AICc_ values are also provided for comparing different ETS Models. 
+
+
+Working (Continued...)
+========================================================
+- ETS forecast shown in _Forecast_ section automaticallys selects the appropriate model which at times may be incorrect. Hence a seperate _ETS_ tab is provided where all the ETS Models with their forecasts can be seen.
+- The _Long ARIMA_ tab calculates the forecasts withot any approximations and searches over all methods.
+
+__Limitations__
+- Some knowledge of forecasting is required to understand the graphs and error table completely.
+- Data file of specific format and extension is required.
+
+Sample data with plot
+========================================================
+left: 40%
+```{r,echo=FALSE}
+opts_chunk$set(cache=TRUE)
+x<-read.csv("demodata_pres.csv")
+x1<-ts(x$Amount, frequency = 12,start = c(x$Year[1],1))
+
+library(ggfortify)
+autoplot(x1)
+
+```
+***
+```{r, echo=FALSE}
+x
+```
+
