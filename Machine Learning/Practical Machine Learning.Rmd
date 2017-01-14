@@ -1,0 +1,104 @@
+---
+title: "Practical Machine Learning"
+author: "Mrugank Akarte"
+date: "25 September 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Introduction  
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+
+The data for this project come from this [source](http://groupware.les.inf.puc-rio.br/har).
+
+```{r, echo = F, message= F}
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+```
+
+##Loading and cleaning Data
+
+```{r}
+training<-read.csv("pml-training.csv",na.strings = c("NA","","#DIV/0!"))
+testing<-read.csv("pml-testing.csv", na.strings = c("NA","#DIV/0!"))
+```
+Training data set contains 19622 observations of 160 variables. Testing data set contains 20 observations of 160 variables.   
+
+Removing columns which contains more than 60% NA values.    
+Also removing the first 7 columns which might interfer in algorithms.
+
+```{r}
+training<- training[ , (colSums(is.na(training))/nrow(training)) < 0.6]
+testing<-testing[, (colSums(is.na(testing))/nrow(testing)) < 0.6]
+training<-training[,-c(1:7)]
+testing<-testing[,-c(1:7)]
+```
+
+Partitioning data into training and testing data set.
+
+```{r}
+intrain<-createDataPartition(training$classe, p= 0.6, list=F)
+traindata<-training[intrain,]
+testdata<-training[-intrain,]
+```
+
+The data is now clean and ready for modelling.
+
+##Modelling the Data
+
+###Decision Tree
+
+```{r, cache=TRUE}
+model2 <- train(classe ~ ., data = traindata, method = "rpart")
+```
+
+Estimating performance on testdata. 
+```{r}
+predict2 <- predict(model2, testdata)
+confusionMatrix(testdata$classe, predict2)
+oose<- 1 -  confusionMatrix(testdata$classe, predict2)$overall[1]
+oose
+```
+
+Accuracy of decision tree is around 55% hence out of sample error is around 45%. Thus predictions using this method will not yield good results.  
+
+Pictorical representation of decision tree.
+```{r}
+tree <- rpart(classe ~ ., data = traindata, method = "class")
+prp(tree)
+```
+
+
+###Random Forest
+
+For random forests algorithm **5-Fold cross-validation** was used.
+
+```{r, cache=TRUE, message= FALSE}
+controltr <- trainControl(method = "cv", 5)
+model1 <- train(classe ~ ., data = traindata, method = "rf", trControl = controltr, ntree = 250)
+```
+
+Estimating performance on testdata. 
+```{r, message= FALSE}
+predict1 <- predict(model1, testdata)
+confusionMatrix(testdata$classe, predict1)
+oose<- 1 - confusionMatrix(testdata$classe, predict1)$overall[1]
+oose
+```
+Accuracy of this model is very high comapred to decision tree. Out of sample error is close to 0.5%.  
+Thus using Random forests instead of decision tree will yield much better results.  
+
+##Predicting for Testing data set
+Predicting the *classe* from Testing data set.
+```{r}
+predict_test<-predict(model1, testing)
+predict_test
+```
+
+
