@@ -9,12 +9,12 @@ Introduction
 =======================================================
 The basic idea behind this applicaton is to allow a user to compare the forecasts of data using different methods within few clicks of a button.
 
-Link for source code of [ui.R](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project) and [server.R](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project).  
+Link for source code of [ui.R](https://github.com/Mrugankakarte/Coursera-Projects/tree/master/Data%20Product) and [server.R](https://github.com/Mrugankakarte/Coursera-Projects/tree/master/Data%20Product).  
 The link for application can be found [here](https://mrugankakarte.shinyapps.io/Project/)
 
 Working
 ========================================================
-- Sample data file for demo is available [here](https://github.com/Mrugankakarte/Coursera-Data-Product/tree/master/project/demo-data-file).  
+- Sample data file for demo is available [here](https://github.com/Mrugankakarte/Coursera-Projects/tree/master/Data%20Product/Demo%20data%20file).  
 - Once the data is loaded, user can see the preview of the data.  
 - Further the interactive time series plot is displayed in the _Plot_ section.  
 - The _Forecast_ section forecasts the data using available different methods. Brief description of each is available in their respective tabs.  
