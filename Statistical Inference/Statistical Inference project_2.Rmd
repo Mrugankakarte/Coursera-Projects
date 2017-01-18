@@ -1,0 +1,85 @@
+---
+title: "Statistical inference: Project 2"
+author: "Mrugank Akarte"
+date: "27 February 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Overview
+
+In this report, *ToolGrowth* data set was used to perform basic exploratory data analysis. Later with the help of confidence intervals and hypothesis testing, growth of tooth by supplement and dose was analyzed.
+
+##Setting up the data
+
+```{r}
+library(datasets)
+summary(ToothGrowth)
+str(ToothGrowth)
+```
+
+Changing the variable _dose_ to factor
+
+```{r}
+ToothGrowth$dose<-as.factor(ToothGrowth$dose)
+str(ToothGrowth)
+```
+
+##Exploratory data analysis
+
+####Checking the effect of dose on toothgrowth.
+
+```{r}
+meandose<-split(ToothGrowth$len,f = ToothGrowth$dose)
+sapply(meandose, mean)
+
+library(ggplot2)
+ggplot(data=ToothGrowth, aes(x=dose,y=len,group=dose))+geom_violin(aes(fill=dose))+xlab("Dose")+ylab("Length")
+```
+
+From above violin graph we can see significant increase in length of tooth with increase in dose. 
+
+####Checking the effect of supplement on toothgrowth.
+
+```{r}
+meansupp<-split(ToothGrowth$len, ToothGrowth$supp)
+sapply(meansupp, mean)
+
+ggplot(data=ToothGrowth, aes(x=supp,y=len,group=supp))+geom_violin(aes(fill=supp))+xlab("Supplement")+ylab("Length")
+
+```
+
+From above graph we can see increase in tooth growth for supplement type 'OJ' more than other supplement.
+
+##Confidence Interval and Hypothesis testing
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$supp=='OJ'],ToothGrowth$len[ToothGrowth$supp=='VC'],paired = F)
+```
+
+The p-value for the t-test is greater than 0.05, hence we cannot reject the null hypothesis. Earlier from the graph we stated that we can see growth in tooth due to supplement 'OJ' more than supplement'VC'. But due to lack of strong evidence we cannot confirm any relation between supplement and tooth growth.
+
+####Testing for relation between dose and toothgrowth
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose==1],ToothGrowth$len[ToothGrowth$dose==0.5],paired = F,var.equal = T)
+```
+
+The p-value for t-test is very small, i.e it less than 0.05. Hence we can safely conclude that, with increase in dose from 0.5mg to 1mg there is growth in tooth. We can also see that zero is not included in the confidence interval. 
+
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose==2],ToothGrowth$len[ToothGrowth$dose==1],paired = F,var.equal = T)
+```
+
+Again the p-value is approx. zero, hence we conclude that with increase in dose we observe growth in tooth. Again zero is not included in the confidence interval. 
+
+##Conclusion
+
+From above analysis we can conclude that: 
+
+*There is no relation between the supplement and the growth of tooth.
+
+*With increase in dose we can see increase in growth of tooth.
