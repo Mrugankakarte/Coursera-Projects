@@ -1,0 +1,20 @@
+---
+title: "README"
+author: "Mrugank Akarte"
+date: "28 February 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Run_analyis.R
+
+Initially the given data set is read one by one by using read.table() command. Then column names are given to each table.
+The data is then merged using cbind,rbind function and is named as final_dataset. The final_dataset is then made smaller by sub-setting only those columns which were required.
+In the end a separate dataset called Tidy_data is created which calculates the average of each variable for each activity and each subject.
+
+##Code book
+
+The code book contains the description of variables used in the analysis.
