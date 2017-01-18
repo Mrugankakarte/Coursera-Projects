@@ -1,0 +1,147 @@
+---
+title: "Reproducible research :Project 2"
+author: "Mrugank Akarte"
+date: "24 January 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#__EXPLORING STORM DATA__
+
+##Synopsis
+
+In this data analysis "Storm Data" provided by 'U.S. National Oceanic and Atmospheric Administration' is used to answer following questions.   
+
+1.Which type of events are most harmful with respect to population health?
+
+2.Which type of events have greatest economic Consequences?
+
+Initially this big dataset is made smaller by subsetting database for ease of calculations and further analysis. The various variables considered are 'EVTYPE', 'INJURIES', 'FATALITIES', 'PROPDMG', 'PROPDMGEXP', 'CROPDMG', 'CROPDMGEXP'. Various plots describing the relation between events and injuries, events and fatalities, events and property damaged are plotted. At the end it is concluded that '__TORNADOES__' are most harmful because, maximum injuries and fatalities are caused due them. Also, Tornadoes have greatest economic consequences due to maximum property destruction.
+
+The dataset was downloaded from the following website.
+
+[https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2]
+
+##Loading and processing Data
+
+```{r, cache=TRUE}
+
+df<-read.csv(bzfile("repdata-data-StormData.csv.bz2"))
+head(df)
+
+subdf<-df[,c("EVTYPE","INJURIES","FATALITIES","PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP")]
+head(subdf)
+
+```
+
+Fisrt analyzing data for variables 'injuries' and 'fatalities'.
+
+```{r}
+injuries_df<-subdf[,c("EVTYPE","INJURIES","FATALITIES")]
+injuries_df<-injuries_df[which(injuries_df$INJURIES>0),]
+```
+
+Checking for injuries and displaying the data in descending order i.e in order of events that have caused maximum injuries first.
+
+```{r}
+injuries_df1<-aggregate(INJURIES ~ EVTYPE, injuries_df, sum)
+injuries_df1<-injuries_df1[order(injuries_df1$INJURIES, decreasing = T),]
+head(injuries_df1)
+```
+
+Similarly calculating for Fatalities.
+
+```{r}
+injuries_df2<-aggregate(FATALITIES ~ EVTYPE, injuries_df, sum)
+injuries_df2<-injuries_df2[order(injuries_df2$FATALITIES, decreasing = T),]
+head(injuries_df2)
+```
+
+Plotting the graphs Events vs Injuries and Events vs Fatalities.
+
+```{r}
+plot1<-barplot(injuries_df1$INJURIES[1:8],ylim = c(0,99999),names.arg = injuries_df1$EVTYPE[1:8], cex.names = 0.7, las=2, col="orange",main = "EVENTS VS TOTAL INJURIES", ylab = "TOTAL INJURIES")
+text(x=plot1, y=injuries_df1$INJURIES[1:8], label= injuries_df1$INJURIES[1:8],cex= 0.6, pos = 3)
+
+plot2<-barplot(injuries_df2$FATALITIES[1:8],ylim = c(0,6000),names.arg = injuries_df2$EVTYPE[1:8], cex.names = 0.7, las=2, col = "red", main = "EVENTS VS FATALITIES", ylab = "FATALITIES")
+text(x=plot2, y=injuries_df2$FATALITIES[1:8], label= injuries_df2$FATALITIES[1:8],cex= 0.6, pos = 3)
+
+```
+
+From above graphs we can see that __TORNADOES__ are most harmful causing maximum injuries and fatalities.
+
+Now analyzing data for property and crop damage.
+
+Before proceeding we need to take care of multipliers used in data in the form of 'k', 'm', 'B'...
+Thus with the help of function we can calculate total cost of damage in following way.
+
+```{r,warning=FALSE}
+damage_df<-subdf[,c("EVTYPE","PROPDMG","PROPDMGEXP","CROPDMG","CROPDMGEXP")]
+
+func1<-function(value,unit)
+{
+      
+      if(unit=="h"|| unit=="H"||unit=="2")
+      {x<-100}
+      else if(unit=="K"||unit=="3")
+      {x<-1000}
+      else if(unit=="m"||unit=="M"||unit=="6")
+      {x<-1000000}
+      else if(unit=="B"||unit=="9")
+      {x<-1000000000}
+      else if(unit=="0")
+      {x<-1}
+      else if(unit=="1")
+      {x<-10}
+      else if(unit=="4")
+      {x<-10000}
+      else if(unit=="5")
+      {x<-100000}
+      else if(unit=="7")
+      {x<-10000000}
+      else if(unit=="8")
+      {x<-100000000}
+      else 
+            x<-1 
+      
+      return(value*x)
+}
+
+damage_df$propertydamage<-func1(damage_df$PROPDMG,damage_df$PROPDMGEXP)
+damage_df$cropdamage<-func1(damage_df$CROPDMG,damage_df$CROPDMGEXP)
+
+```
+
+Calculating total damage caused by various events.
+
+```{r}
+n_pdmg<-aggregate(propertydamage ~ EVTYPE, damage_df, sum)
+n_cdmg<-aggregate(cropdamage ~ EVTYPE, damage_df, sum)
+```
+
+Organizing the above data in descending order so that we can get clear information about which events have caused maximum property and crop destruction.
+
+```{r}
+n_pdmg<-n_pdmg[order(n_pdmg$propertydamage, decreasing = T),]
+n_cdmg<-n_cdmg[order(n_cdmg$cropdamage, decreasing = T),]
+head(n_pdmg)
+head(n_cdmg)
+```
+
+Looking at above data we can say that _TORNADOES_ are the major cause for damaging property and _HAIL STORM_ for damaging crops.
+
+Plotting a barplot of Events vs Property damaged.
+
+```{r}
+barplot(n_pdmg$propertydamage[1:8],names.arg = n_pdmg$EVTYPE[1:8], cex.names = 0.6, las=2, col="green",main = "EVENTS VS PROPERTY DAMAGED")
+```
+
+From the above plot we see that _TORNADOES_ are the main reason of maximum property damage.
+
+##RESULTS
+
+Thus from above data analysis we can say that __TORNADOES__ are most harmful with respect to _human population_ since tornadoes have caused maximum injuries and fatalities. They are also major cause for _destroying property_ while __HAIL STORM__ is the major reason for _crop destruction_.
+
+
