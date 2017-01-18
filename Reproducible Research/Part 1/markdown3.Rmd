@@ -1,0 +1,122 @@
+---
+title: 'Reproducible Research: Project 1'
+author: "Mrugank Akarte"
+date: "9 January 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+##Synopsis
+
+In this analysis "Activity" data from a personal activity monitoring device was used.This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+##Loading data set
+
+Reading the data from activity.csv file.
+```{r data_set, echo=TRUE}
+data_set<-read.csv("activity.csv")
+head(data_set)
+```
+
+##Total number of steps per day
+
+Total number of steps per day are calculated only for those days which are free from NA's.
+```{r steps_per_day,  echo=TRUE}
+steps_per_day<-aggregate(steps~date, data_set,sum)
+head(steps_per_day)
+```
+
+##Histogram
+
+```{r histogram, echo=TRUE}
+hist(steps_per_day$steps,breaks = 25, col = "green",main = "HISTOGRAM", xlab = "Number of steps per day")
+```
+From the above histogram we can roughly say that maximum number of steps taken per day are in range of 10000-12000.
+
+##Calculating mean and median
+
+```{r mean_median, echo=TRUE}
+steps_mean<-mean(steps_per_day$steps)
+steps_median<-median(steps_per_day$steps)
+steps_mean
+
+steps_median
+```
+
+
+##Time series plot of the average number of steps taken
+
+```{r timeseries_plot, echo=TRUE}
+steps_interval<-aggregate(x=list(steps=data_set$steps), by=list(interval=data_set$interval), mean, na.rm=T)
+head(steps_interval)
+plot(steps_interval$interval, steps_interval$steps, type = "l",frame.plot = T, xlab = "Interval",ylab = "Number of steps")
+```
+
+##The 5-minute interval that, on average, contains the maximum number of steps
+
+```{r max_steps, echo=TRUE}
+max_steps<-steps_interval[which.max(steps_interval$steps),]
+max_steps
+```
+
+##Code to describe and show a strategy for inputing missing data
+
+```{r filling data, echo=TRUE}
+nonas<-sum(is.na(data_set))
+nonas
+
+fill_value <- function(steps, interval) { 
+  filled <- NA 
+  if (!is.na(steps)) 
+    filled <- c(steps) 
+  else 
+    filled <- (steps_interval[steps_interval$interval==interval, "steps"]) 
+  return(filled) 
+} 
+filled_data <- data_set 
+filled_data$steps <- mapply(fill_value, filled_data$steps, filled_data$interval)
+head(filled_data)
+```
+
+##Histogram of the total number of steps taken each day after missing values are inputed
+
+```{r histogram2, echo=TRUE}
+steps_per_day2<-aggregate(steps~date, filled_data, sum)
+colnames(steps_per_day2)<-c("date","steps")
+head(steps_per_day2)
+hist(steps_per_day2$steps, breaks = 25, col = "red",main = "HISTOGRAM", xlab = "Number of steps per day")
+```
+We can see change in graph on comparing this graph with the earlier graph of total umber of steps take each day where missing values were ignored.
+
+##New mean and median after missing values are inputed
+
+```{r new mean_median, echo=TRUE}
+steps_mean2<-mean(steps_per_day2$steps)
+steps_mean2
+steps_median2<-median(steps_per_day2$steps)
+
+steps_median2
+```
+
+## Differences in activity patterns between weekdays and weekends
+
+```{r pattern, echo=TRUE}
+filled_data$weekday<-weekdays(as.Date(filled_data$date))
+type<-function(date){
+  day<-weekdays(date)
+  if(day %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"))
+    return("weekday")
+  else if(day %in% c("Saturday","Sunday"))
+        return("weekend")
+  else return("Invalid date!!")
+
+}
+filled_data$type<-sapply(as.Date(filled_data$date),FUN = type)
+
+head(filled_data)
+averages<-aggregate(steps~interval+type, filled_data, mean)
+library(ggplot2)
+ggplot(averages,aes(x=interval,y=steps))+geom_line()+facet_grid(type~.)+ylab("Number of steps")  
+```
