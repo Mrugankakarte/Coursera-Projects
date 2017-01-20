@@ -20,10 +20,15 @@ shinyUI(navbarPage("Forecasting Application!",
                    ),
                    tabPanel("Data",
                              mainPanel(
-                              h4( span("Please upload your data file", style = "color:red")),
-                              fileInput('file1', 'Choose CSV File',
-                                        accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')), 
-                              tableOutput('contents'))
+                              
+                                  radioButtons(inputId = "choice1",label = "Select:", choices = c("Upload" = "x1", 
+                                                               "Use default file" = "x2")),
+                                   
+                                        h4( span("Please upload your data file", style = "color:red")),
+                                        fileInput('file1', 'Choose CSV File',
+                                                  accept=c('text/csv', 'text/comma-separated-values,text/plain', '.csv')),
+                                        
+                                 tableOutput('contents'))
                         
                    ),
                    tabPanel("Plot",

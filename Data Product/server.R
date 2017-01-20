@@ -24,12 +24,31 @@ shinyServer(function(input, output, session) {
     
   },include.rownames = F)
   
+  
   timeseries<- reactive({
-    inFile <- input$file1 
-    if (is.null(inFile))
-      return(NULL)
-    x<-read.csv(inFile$datapath)
-    x.ts<-ts(x$Amount, frequency = 12, start = c(x$Year[1],1))
+          #inFile$datapath <- reactiveFileReader(intervalMillis = 1000,readFunc = read.csv,filePath =url("https://raw.githubusercontent.com/Mrugankakarte/Coursera-Projects/master/Data%20Product/Demo%20data%20file/demo.csv"))
+    
+     if(input$choice1 == "x1")
+           {
+           
+           inFile <- input$file1 
+           if (is.null(inFile))
+                 return(NULL)
+           
+           x<-read.csv(inFile$datapath)
+        
+     }
+        
+        
+    if(input$choice1 == "x2")
+    {
+          inFile <-read.csv(url("https://raw.githubusercontent.com/Mrugankakarte/Coursera-Projects/master/Data%20Product/Demo%20data%20file/demo.csv"))
+          
+          x<- inFile
+
+    }
+
+     x.ts<-ts(x$Amount, frequency = 12, start = c(x$Year[1],1))
     x.ts
   })
  
