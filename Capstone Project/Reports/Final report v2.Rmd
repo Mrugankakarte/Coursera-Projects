@@ -1,0 +1,120 @@
+---
+title: "Text Prediction : Report"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This project was a part of Capstone stone (Course 10) of Data Science Specialization.
+The objective was to understanding and building predictive text models like those used by SwiftKey.
+
+In order to achieve this 5-gram Stupid backoff Algorithm was used. The model was built using news articles and blogs. According to benchmark test the model achieved an accuracy of **14-15%** with **10% / 19%** in **top-1 precision and top-3** precision.
+Average runtime for prediction was **40msec** and memory used was less than **60Mb**.
+
+Training data was provided by Coursera.[[1]](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip)
+
+The application can be found here : [https://mrugankakarte.shinyapps.io/text_predictor/](https://mrugankakarte.shinyapps.io/text_predictor/)
+
+## Exploration
+
+Number of Tweets : 2360148  
+Number of Blogs : 899288  
+Number of news : 77259  
+
+For this project only blogs and news articles were used as training data.
+
+#### Frequency of words
+
+```{r blogs, echo=FALSE}
+library(png)
+library(grid)
+img1 <- readPNG("FreqBlogs.png")
+grid.raster(img1)
+```
+```{r news, echo=FALSE}
+img2 <- readPNG("FreqNews.png")
+grid.raster(img2)
+```
+```{r twitter, echo=FALSE}
+img3 <- readPNG("FreqTwitter.png")
+grid.raster(img3)
+```
+
+#### Cleaning Data
+
+Following operations were performed to clean the data.  
+1. Removing extra white spaces  
+2. Removing numbers  
+3. Covert all the characters to lower case  
+4. Remove all punctuations  
+5. Replace all abbreviations  
+
+Stopwords were removed only for data exploration purpose and were added back in the model. Without stopwords would in large number of meaningless n-grams. 
+
+
+
+Corpus was converted back to character so that `tau` package could be used to create ngrams.
+
+#### Frequency of n-grams
+The following plots show most frequent n-grams from the corpus.
+```{r unifreq, echo=FALSE}
+img2 <- readPNG("unifreq.png")
+grid.raster(img2)
+```
+```{r bifreq, echo=FALSE}
+img2 <- readPNG("bifreq.png")
+grid.raster(img2)
+```
+```{r trifreq, echo=FALSE}
+img2 <- readPNG("trifreq.png")
+grid.raster(img2)
+```
+```{r quadfreq, echo=FALSE}
+img2 <- readPNG("quadfreq.png")
+grid.raster(img2)
+```
+```{r pentafreq, echo=FALSE}
+img2 <- readPNG("pentafreq.png")
+grid.raster(img2)
+```
+
+According to Zipf's law, term-frequency matrices contain few terms with high frequency counts and many terms with low frequency counts. Ultra-low frequency items use a significant amount of memory while adding little value to our language model. Hence, n-grams with frequency less than 4 were removed. This resulted in significant reduction in size of n-grams table.
+
+## Stupid Backoff Algorithm
+
+Since 5-gram model was used, from the input text last 4 words were seperated out. These were then matched in th 5-gram table first and all the similar terms were filtered out. From this based on frequeny a score[3] for next word was calcuated as:
+
+```{r algo, fig.width=3.5, fig.height=1.5,echo=FALSE, fig.align='center'}
+img <- readPNG("download.png")
+grid.raster(img)
+```
+
+Based on score top 5 words were shown as prediction. If sufficient results are not found then the model the model backoff's to lower model i.e. to 4-gram model and so on..
+
+## Evaluation
+
+To evaluate the performance of the model a benchmarking test[[4]](https://github.com/hfoffani/dsci-benchmark) was carried out. The bechmark test on 100 blogs gave following results
+
+```{r evaluation, echo=FALSE, fig.height=3, fig.align='center'}
+img <- readPNG("benchmark.png")
+grid.raster(img)
+```
+
+Around 2433 prediction were made at 40msec each with accuracy of 14-15%. Memory used is **55Mb**. This indicates that more training data can be used to improve the accuracy.
+
+
+## References
+
+1. JHU DS Capstone Swiftkey Dataset :  <https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip>
+2. NLP course by Professor Dan Jurafsky & Chris Manning : <https://www.youtube.com/watch?v=s3kKlUBa3b0&index=12&list=PL6397E4B26D00A269>
+3. “Large language models in machine translation” by T. Brants et al, in EMNLP/CoNLL 2007 : <http://www.aclweb.org/anthology/D07-1090.pdf>
+4. Next word prediction benchmark : <https://github.com/hfoffani/dsci-benchmark>
+
+### Contact Info.
+
+Email : <mrugankakarte13@gmail.com>  
+GitHub : <https://github.com/Mrugankakarte>

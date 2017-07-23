@@ -1,0 +1,161 @@
+---
+title: "Milestone Report"
+author: "Mrugank Akarte"
+date: "27 May 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This report briefly descibes exploratory analysis done. NUmber of articles in each file, number of characters, words in each line were found out. Punctuations were removed using a function from *tm* package. Same was shown using graphs. In the end most frequent words were found out using *Qdap* package. 
+
+
+###Reading the data files in R.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(qdap)
+library(tm)
+library(ggplot2)
+```
+
+```{r, cache = TRUE}
+twitter_raw <- readLines("data/en_US/en_US.twitter.txt", n = -1, warn = T, skipNul = F)
+blogs_raw <- readLines("data/en_US/en_US.blogs.txt", n = -1, warn = T, skipNul = F)
+news_raw <- readLines("data/en_US/en_US.news.txt" , n = -1, warn = T, skipNul = F)
+
+```
+ 
+Basic file info.
+```{r}
+file.info("data/en_US/en_US.twitter.txt")
+file.info("data/en_US/en_US.blogs.txt")
+file.info("data/en_US/en_US.news.txt")
+```
+
+###Number of articles in each file
+
+Total number of tweets: 
+```{r,echo=FALSE}
+length(twitter_raw)
+```
+
+Total number of blogs: 
+```{r,echo=FALSE}
+length(blogs_raw)
+```
+
+Total number of news: 
+```{r,echo=FALSE}
+length(news_raw)
+```
+
+Punctuations were removed from the sentence before finding out number of characters and words.
+
+```{r,echo=FALSE, cache=TRUE}
+rm_punc_news <- removePunctuation(news_raw)
+rm_punc_twitter <- removePunctuation(twitter_raw) 
+rm_punc_blogs <- removePunctuation(blogs_raw)
+
+chars_news <- nchar(news_raw)         #no of chars in each news 
+chars_tweets <- nchar(twitter_raw)     #no of chars in each tweet
+chars_blogs <- nchar(blogs_raw)        #no of chars in each blog
+
+words <- function(txt){
+      w <- sapply(strsplit(txt, split = " "),length) 
+      return(w)
+}
+w_news <- words(rm_punc_news)
+w_twitter <- words(rm_punc_twitter)
+w_blogs <- words(rm_punc_blogs)
+```
+
+Number of characters in each line: 
+```{r}
+head(chars_news, 5)
+head(chars_tweets, 5)
+head(chars_blogs, 5)
+```
+
+Number of words in each line:
+```{r}
+head(w_news, 5)
+head(w_twitter, 5)
+head(w_blogs, 5)
+
+```
+
+Following plot shows distribiution of words in each sentence for each file.
+
+```{r,echo=FALSE}
+plot1 <- ggplot(data.frame(w_news), aes(x = w_news)) + geom_bar(colour = 'purple') + ggtitle("Number of words/line in news")
+plot1
+plot2 <- ggplot(data.frame(w_twitter), aes(x = w_twitter)) + geom_bar(colour = 'blue') + ggtitle("Number of words/line in tweets")
+plot2
+plot3 <- ggplot(data.frame(w_blogs), aes(x = w_blogs)) + geom_bar(colour = 'red') + ggtitle("Number of words/line in blogs")
+plot3
+```
+
+###Frequency of words
+
+*Qdap* package was used to calculate the most frequent words used in news, twitter and blogs. Following bargraph shows top 20 most frequent words. These frequent words do not include the stop words.  
+
+```{r, echo = F, cache=TRUE}
+
+freq_news <- freq_terms(news_raw, top = 20, stopwords = c('Top200Words', tm::stopwords("en")))
+ggplot(freq_news, aes(x = reorder(WORD, FREQ), y = FREQ))+geom_bar(stat = 'identity') + coord_flip()+ggtitle("News")
+
+freq_twitter <- freq_terms(twitter_raw, top = 20, stopwords = c('Top200Words', tm::stopwords("en")))
+ggplot(freq_twitter, aes(x = reorder(WORD, FREQ), y = FREQ))+geom_bar(stat = 'identity') + coord_flip()+ggtitle("Twitter")
+
+freq_blogs <- freq_terms(blogs_raw, top = 20, stopwords = c('Top200Words', tm::stopwords("en")))
+ggplot(freq_blogs, aes(x = reorder(WORD, FREQ), y = FREQ))+geom_bar(stat = 'identity') + coord_flip()+ggtitle("Blogs")
+
+```
+
+
+###Cleaning and creating corpus
+
+```{r, eval = F}
+#Function to clean corpus
+clean_corpus <- function(corpus){
+      corpus <- tm_map(corpus, removePunctuation)
+      corpus <- tm_map(corpus, stripWhitespace)
+      corpus <- tm_map(corpus, replace_number)
+      corpus <- tm_map(corpus, tolower)
+      corpus <- tm_map(corpus, removeWords, c(stopwords("en")))
+      corpus <- tm_map(corpus, replace_abbreviation)
+      return(corpus)
+}
+```
+
+The above function cleans the corpus of punctuations, white spaces, stopwords, abbreviations and converts the text into lower case.
+
+The following commands creates the corpus for each soure file. The clean corpus is then saved locally to save memory.
+```{r}
+source_news <- VectorSource(news_raw)
+corpus_news <- VCorpus(source_news)
+clean_news <- clean_corpus(corpus_news)
+saveRDS(clean_news, file = "data/en_US/clean_news_corpus.RDS")
+
+#finalnewsCorpus <- readRDS("data/en_US/clean_news_corpus.RDS")
+
+source_twitter <- VectorSource(twitter_raw)
+courpus_twitter <- VCorpus(source_twitter)
+clean_twitter <- clean_corpus(corpus_twitter)
+saveRDS(clean_twitter, file = "data/en_US/clean_twitter_corpus.RDS")
+
+#finaltwittercorpus <- readRDS("data/en_US/clean_twitter_corpus.RDS")
+
+source_blogs <- VectorSource(blogs_raw)
+courpus_blogs <- VCorpus(source_blogs)
+clean_blogs <- clean_corpus(corpus_blogs)
+saveRDS(clean_blogs, file = "data/en_US/clean_blogs_corpus.RDS")
+
+#finalblogscorpus <- readRDS("data/en_US/clean_blogs_corpus.RDS")
+```
+
