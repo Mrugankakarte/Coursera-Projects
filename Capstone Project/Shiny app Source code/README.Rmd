@@ -1,0 +1,22 @@
+---
+title: "ReadME"
+author: "Mrugank Akarte"
+date: "11 June 2017"
+output: html_document
+---
+
+### How to use Application
+
+#### Prediction Tab
+
+1. Go to prediction tab.
+2. Enter text in left text box. Predictions will appear as table to the right. These predictions can be filtered by name.
+3. Please ensure that no spelling mistake are made and proper spacing is given.
+   
+
+#### References
+
+1. JHU DS Capstone Swiftkey Dataset :  <https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip>
+2. NLP course by Professor Dan Jurafsky & Chris Manning : <https://www.youtube.com/watch?v=s3kKlUBa3b0&index=12&list=PL6397E4B26D00A269>
+3. Large language models in machine translationâ by T. Brants et al, in EMNLP/CoNLL 2007 : <http://www.aclweb.org/anthology/D07-1090.pdf>
+4. Next word prediction benchmark : <https://github.com/hfoffani/dsci-benchmark>
