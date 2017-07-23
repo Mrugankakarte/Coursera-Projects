@@ -4,6 +4,7 @@ author: "Mrugank Akarte"
 date: "11 June 2017"
 output: html_document
 ---
+Link to Application: [Word predictor](https://mrugankakarte.shinyapps.io/text_predictor/)
 
 ### How to use Application
 
