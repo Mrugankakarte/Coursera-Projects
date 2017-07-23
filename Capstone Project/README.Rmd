@@ -1,0 +1,17 @@
+## [Capstone Project Info](https://www.coursera.org/learn/data-science-project/#syllabus)
+The goal of this capstone is to mimic the experience of being a data scientist. As a practicing data scientist it is entirely common to get a messy data set, a vague question, and very little instruction on exactly how to analyze the data. Our goal is to give you that same experience but with added support in the form of forums, discussion with instructors, feedback from SwiftKey and Coursera engineers, and a structured problem to solve. We hope that you will take advantage of the opportunity this project affords for you to demonstrate your skills and creativity.
+
+## Course Tasks
+
+This course will be separated into 8 different tasks that cover the range of activities encountered by a practicing data scientist. They mirror many of the skills you have developed in the data science specialization. The tasks are:
+
+- Understanding the problem   
+- Data acquisition and cleaning  
+- Exploratory analysis  
+- Statistical modeling  
+- Predictive modeling  
+- Creative exploration  
+- Creating a data product  
+- Creating a short slide deck pitching your product  
+
+[Link](https://mrugankakarte.shinyapps.io/text_predictor/) to application
